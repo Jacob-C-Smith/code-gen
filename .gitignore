@@ -1,0 +1,14 @@
+
+/build
+intel_manual.pdf
+/lib
+main
+main.asm
+main.bin
+main.o
+out.dis
+transform.bin
+vec3.bin
+/.vscode
+box.md
+example.ir
