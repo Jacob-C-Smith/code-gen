@@ -236,7 +236,7 @@ int code_gen_x86_64_example ( int argc, const char *argv[] )
     // Initialized data
     x86_64_code_gen *p_code_gen = (void *) 0;
     char _output[4096] = { 0 };
-    int (*pfn_fun) ( void ) = (void *) 0;
+    int (*add) ( int i, int j ) = (void *) 0;
     int _pipe[2] = { 0 };
     int ndisasm_pid = -1;
     char *const ndisasm_argv[] = { "ndisasm", "-b", "64", "-", NULL };
@@ -294,18 +294,22 @@ int code_gen_x86_64_example ( int argc, const char *argv[] )
     // Formatting
     printf("-------------------------------------------------\n");
 
-    // Store the base
-    pfn_fun = p_code_gen->p_base;
+    // No input
+    if ( p_code_gen->size == 0 ) goto done;
+
+    // // Store the base
+    // add = p_code_gen->p_base;
     
-    // Call the function
-    //pfn_fun();
+    // // Call the function
+    // int r = add("Hello, World", 1);
 
-    // Print the result
-    //printf("%s() -> %d", "pfn_fun", );
+    // // Print the result
+    // printf("%s(%d,%d) -> %d", "fun", 1, 2, r);
 
+    done:
     // Format
     putchar('\n');
-
+    
     // Success
     return 1;
 

@@ -38,47 +38,47 @@ size_t x86_64_gen_pop_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg 
 /////////////
 // Bitwise //
 /////////////
-size_t x86_64_gen_and_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_and_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
 
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x21,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
-size_t x86_64_gen_or_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_or_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
 
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x09,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
-size_t x86_64_gen_xor_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_xor_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
     
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x31,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
-size_t x86_64_gen_test_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_test_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
     
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x85,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
@@ -144,25 +144,25 @@ size_t x86_64_gen_ror_reg_imm8 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e 
 ////////////////
 // Arithmetic //
 ////////////////
-size_t x86_64_gen_add_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_add_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
     
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x01,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
-size_t x86_64_gen_sub_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_sub_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
     
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x29,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
 
@@ -287,16 +287,28 @@ size_t x86_64_gen_mov_reg_imm64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e
     );
 }
 
-size_t x86_64_gen_mov_reg_reg ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+size_t x86_64_gen_mov_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
 {
     
     // Success
     return pack_pack(p_code_gen->p_offset, "%3i8",
         0x48,
         0x89,
-        0xC0 | _reg1 << 3 | _reg2
+        0xC0 | _reg2 << 3 | _reg1
     );
 }
+
+size_t x86_64_avx2_gen_mov_r64_r64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+{
+    
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%3i8",
+        0x48,
+        0x89,
+        0xC0 | _reg2 << 3 | _reg1
+    );
+}
+
 
 //////////
 // Misc //
@@ -308,6 +320,163 @@ size_t x86_64_gen_nop ( x86_64_code_gen *p_code_gen )
     return pack_pack(p_code_gen->p_offset, "%i8", 0x90);
 }
 
+size_t x86_64_gen_syscall ( x86_64_code_gen *p_code_gen )
+{
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%2i8",
+        0x0F,
+        0x05
+    );
+}
+
+size_t x86_64_avx_gen_mov_reg128_reg64 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2 )
+{
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xF9,
+        0x6F,
+        0xC0 | _reg1 << 3
+             | _reg2
+    );
+}
+
+size_t x86_64_avx_gen_add_i32x4_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC1 | b << 3,
+        0xFE,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_add_f32x8_reg256_reg256_reg256 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC1 | b << 3,
+        0x58,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_add_i64x2_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC0 | b << 3,
+        0x58,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_add_f64x2_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC1 | b << 3,
+        0x58,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_add_f32x4_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC0 | b << 3,
+        0x58,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_sub_f32x4_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC0 | b << 3,
+        0x5C,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_mul_f32x4_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC0 | b << 3,
+        0x59,
+        0xC0 | a << 3
+             | c
+    );
+}
+
+size_t x86_64_avx_gen_div_f32x4_reg128_reg128_reg128 ( x86_64_code_gen *p_code_gen, enum x86_64_reg_e _reg1, enum x86_64_reg_e _reg2, enum x86_64_reg_e _reg3 )
+{
+
+    unsigned char a = _reg1,
+                  b = (~_reg2) & 0b111,
+                  c = _reg3;
+
+    // Success
+    return pack_pack(p_code_gen->p_offset, "%4i8",
+        0xC5,
+        0xC0 | b << 3,
+        0x5E,
+        0xC0 | a << 3
+             | c
+    );
+}
 // Function definitions
 int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size_t size )
 {
@@ -333,12 +502,14 @@ int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size
     
     // Store the offset
     p_code_gen->p_offset = p_code_gen->p_base;
-
+    
+    /*
     ///////////////////////////
     // Assemble the function //
     ///////////////////////////
     {
 
+        p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         // inc
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             p_code_gen->p_offset += x86_64_gen_inc_reg (p_code_gen, (enum x86_64_reg_e) i);
@@ -373,25 +544,25 @@ int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size
         // and
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_and_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_and_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // or
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_or_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_or_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // xor
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_xor_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_xor_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // test
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_test_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_test_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // shl
@@ -420,16 +591,18 @@ int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size
     ////////////////
     {
 
+        p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
+        
         // add
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_add_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_add_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // sub
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_sub_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_sub_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
         // neg
@@ -504,13 +677,14 @@ int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size
         // mov
         for (size_t i = 0; i < X86_64_REG_QUANTITY; i++)
             for (size_t j = 0; j < X86_64_REG_QUANTITY; j++)
-                p_code_gen->p_offset += x86_64_gen_mov_reg_reg (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
+                p_code_gen->p_offset += x86_64_gen_mov_r64_r64 (p_code_gen, (enum x86_64_reg_e) i, (enum x86_64_reg_e) j);
         p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
         
     }
+    */
 
-    // Update page permissions 
-    if ( -1 == mprotect(p_code_gen->p_base, (size_t)sysconf(_SC_PAGESIZE), PROT_READ | PROT_EXEC) ) goto failed_to_update_permissions;
+    // // Update page permissions 
+    // if ( -1 == mprotect(p_code_gen->p_base, (size_t)sysconf(_SC_PAGESIZE), PROT_READ | PROT_EXEC) ) goto failed_to_update_permissions;
 
     // Set the size
     p_code_gen->size = ((size_t)p_code_gen->p_offset - (size_t)p_code_gen->p_base);
@@ -569,4 +743,215 @@ int x86_64_code_gen_construct ( x86_64_code_gen **pp_code_gen, void *p_out, size
                 return 0;
         }
     }
+}
+
+int x86_64_code_gen_node_construct ( x86_64_code_gen *p_code_gen, char *instruction, char *op1, char *op2, char *op3 ) 
+{
+
+    // Initialized data
+    x86_64_op _op1, _op2, _op3;
+
+    // Parse operand 1 
+    if ( op1 )
+    {
+             if ( 0 == strncmp(op1, "RAX" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RAX };
+        else if ( 0 == strncmp(op1, "RCX" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RCX };
+        else if ( 0 == strncmp(op1, "RDX" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDX };
+        else if ( 0 == strncmp(op1, "RBX" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBX };
+        else if ( 0 == strncmp(op1, "RSP" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSP };
+        else if ( 0 == strncmp(op1, "RBP" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBP };
+        else if ( 0 == strncmp(op1, "RSI" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSI };
+        else if ( 0 == strncmp(op1, "RDI" , 3) ) _op1 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDI };
+
+        else if ( 0 == strncmp(op1, "XMM0", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM0 };
+        else if ( 0 == strncmp(op1, "XMM1", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM1 };
+        else if ( 0 == strncmp(op1, "XMM2", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM2 };
+        else if ( 0 == strncmp(op1, "XMM3", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM3 };
+        else if ( 0 == strncmp(op1, "XMM4", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM4 };
+        else if ( 0 == strncmp(op1, "XMM5", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM5 };
+        else if ( 0 == strncmp(op1, "XMM6", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM6 };
+        else if ( 0 == strncmp(op1, "XMM7", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM7 };
+
+        else if ( 0 == strncmp(op1, "YMM0", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM0 };
+        else if ( 0 == strncmp(op1, "YMM1", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM1 };
+        else if ( 0 == strncmp(op1, "YMM2", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM2 };
+        else if ( 0 == strncmp(op1, "YMM3", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM3 };
+        else if ( 0 == strncmp(op1, "YMM4", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM4 };
+        else if ( 0 == strncmp(op1, "YMM5", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM5 };
+        else if ( 0 == strncmp(op1, "YMM6", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM6 };
+        else if ( 0 == strncmp(op1, "YMM7", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM7 };
+
+        else if ( 0 == strncmp(op1, "ZMM0", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM0 };
+        else if ( 0 == strncmp(op1, "ZMM1", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM1 };
+        else if ( 0 == strncmp(op1, "ZMM2", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM2 };
+        else if ( 0 == strncmp(op1, "ZMM3", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM3 };
+        else if ( 0 == strncmp(op1, "ZMM4", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM4 };
+        else if ( 0 == strncmp(op1, "ZMM5", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM5 };
+        else if ( 0 == strncmp(op1, "ZMM6", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM6 };
+        else if ( 0 == strncmp(op1, "ZMM7", 4) ) _op1 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM7 };
+
+        else                                     _op1 = (x86_64_op) { ._type = X86_64_IMM64  , ._imm64 = atoi(op1) };
+    }
+
+    // Parse operand 2 
+    if ( op2 )
+    {
+             if ( 0 == strncmp(op2, "RAX" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RAX };
+        else if ( 0 == strncmp(op2, "RCX" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RCX };
+        else if ( 0 == strncmp(op2, "RDX" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDX };
+        else if ( 0 == strncmp(op2, "RBX" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBX };
+        else if ( 0 == strncmp(op2, "RSP" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSP };
+        else if ( 0 == strncmp(op2, "RBP" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBP };
+        else if ( 0 == strncmp(op2, "RSI" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSI };
+        else if ( 0 == strncmp(op2, "RDI" , 3) ) _op2 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDI };
+
+        else if ( 0 == strncmp(op2, "XMM0", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM0 };
+        else if ( 0 == strncmp(op2, "XMM1", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM1 };
+        else if ( 0 == strncmp(op2, "XMM2", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM2 };
+        else if ( 0 == strncmp(op2, "XMM3", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM3 };
+        else if ( 0 == strncmp(op2, "XMM4", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM4 };
+        else if ( 0 == strncmp(op2, "XMM5", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM5 };
+        else if ( 0 == strncmp(op2, "XMM6", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM6 };
+        else if ( 0 == strncmp(op2, "XMM7", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM7 };
+
+        else if ( 0 == strncmp(op2, "YMM0", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM0 };
+        else if ( 0 == strncmp(op2, "YMM1", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM1 };
+        else if ( 0 == strncmp(op2, "YMM2", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM2 };
+        else if ( 0 == strncmp(op2, "YMM3", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM3 };
+        else if ( 0 == strncmp(op2, "YMM4", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM4 };
+        else if ( 0 == strncmp(op2, "YMM5", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM5 };
+        else if ( 0 == strncmp(op2, "YMM6", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM6 };
+        else if ( 0 == strncmp(op2, "YMM7", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM7 };
+
+        else if ( 0 == strncmp(op2, "ZMM0", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM0 };
+        else if ( 0 == strncmp(op2, "ZMM1", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM1 };
+        else if ( 0 == strncmp(op2, "ZMM2", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM2 };
+        else if ( 0 == strncmp(op2, "ZMM3", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM3 };
+        else if ( 0 == strncmp(op2, "ZMM4", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM4 };
+        else if ( 0 == strncmp(op2, "ZMM5", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM5 };
+        else if ( 0 == strncmp(op2, "ZMM6", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM6 };
+        else if ( 0 == strncmp(op2, "ZMM7", 4) ) _op2 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM7 };
+
+        else                                     _op2 = (x86_64_op) { ._type = X86_64_IMM64  , ._imm64 = atoi(op2) };
+
+    }
+
+    // Parse operand 3 
+    if ( op3 )
+    {
+             if ( 0 == strncmp(op3, "RAX" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RAX };
+        else if ( 0 == strncmp(op3, "RCX" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RCX };
+        else if ( 0 == strncmp(op3, "RDX" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDX };
+        else if ( 0 == strncmp(op3, "RBX" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBX };
+        else if ( 0 == strncmp(op3, "RSP" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSP };
+        else if ( 0 == strncmp(op3, "RBP" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RBP };
+        else if ( 0 == strncmp(op3, "RSI" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RSI };
+        else if ( 0 == strncmp(op3, "RDI" , 3) ) _op3 = (x86_64_op) { ._type = X86_64_REG_64 , ._reg   = RDI };
+
+        else if ( 0 == strncmp(op3, "XMM0", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM0 };
+        else if ( 0 == strncmp(op3, "XMM1", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM1 };
+        else if ( 0 == strncmp(op3, "XMM2", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM2 };
+        else if ( 0 == strncmp(op3, "XMM3", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM3 };
+        else if ( 0 == strncmp(op3, "XMM4", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM4 };
+        else if ( 0 == strncmp(op3, "XMM5", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM5 };
+        else if ( 0 == strncmp(op3, "XMM6", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM6 };
+        else if ( 0 == strncmp(op3, "XMM7", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_128, ._reg   = XMM7 };
+
+        else if ( 0 == strncmp(op3, "YMM0", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM0 };
+        else if ( 0 == strncmp(op3, "YMM1", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM1 };
+        else if ( 0 == strncmp(op3, "YMM2", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM2 };
+        else if ( 0 == strncmp(op3, "YMM3", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM3 };
+        else if ( 0 == strncmp(op3, "YMM4", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM4 };
+        else if ( 0 == strncmp(op3, "YMM5", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM5 };
+        else if ( 0 == strncmp(op3, "YMM6", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM6 };
+        else if ( 0 == strncmp(op3, "YMM7", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_256, ._reg   = YMM7 };
+
+        else if ( 0 == strncmp(op3, "ZMM0", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM0 };
+        else if ( 0 == strncmp(op3, "ZMM1", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM1 };
+        else if ( 0 == strncmp(op3, "ZMM2", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM2 };
+        else if ( 0 == strncmp(op3, "ZMM3", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM3 };
+        else if ( 0 == strncmp(op3, "ZMM4", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM4 };
+        else if ( 0 == strncmp(op3, "ZMM5", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM5 };
+        else if ( 0 == strncmp(op3, "ZMM6", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM6 };
+        else if ( 0 == strncmp(op3, "ZMM7", 4) ) _op3 = (x86_64_op) { ._type = X86_64_REG_512, ._reg   = ZMM7 };
+
+        else                                     _op3 = (x86_64_op) { ._type = X86_64_IMM64  , ._imm64 = atoi(op3) };
+    }
+
+    // No operands
+    if ( !( op1 && op2 && op3 ) )
+    {
+             if ( 0 == strcmp(instruction, "RET")     ) p_code_gen->p_offset += x86_64_gen_ret(p_code_gen);
+        else if ( 0 == strcmp(instruction, "NOP")     ) p_code_gen->p_offset += x86_64_gen_nop(p_code_gen);
+        else if ( 0 == strcmp(instruction, "SYSCALL") ) p_code_gen->p_offset += x86_64_gen_syscall(p_code_gen);
+    }
+
+    // One operand
+    if ( op1 && !( op2 && op3 ) )
+    {
+        if ( _op1._type == X86_64_REG_64 )
+        {
+                 if ( 0 == strcmp(instruction, "PUSH") ) p_code_gen->p_offset += x86_64_gen_push_reg(p_code_gen, _op1._reg);
+            else if ( 0 == strcmp(instruction, "POP")  ) p_code_gen->p_offset += x86_64_gen_pop_reg(p_code_gen, _op1._reg);
+            else if ( 0 == strcmp(instruction, "INC")  ) p_code_gen->p_offset += x86_64_gen_inc_reg(p_code_gen, _op1._reg);
+            else if ( 0 == strcmp(instruction, "DEC")  ) p_code_gen->p_offset += x86_64_gen_dec_reg(p_code_gen, _op1._reg);
+        } 
+    }
+    
+    // Two operand
+    if ( op1 && op2 && !op3 )
+    {
+
+        // reg, reg
+        if ( _op1._type == X86_64_REG_64 && _op2._type == X86_64_REG_64 )
+        {
+                 if ( 0 == strcmp(instruction, "MOV")  ) p_code_gen->p_offset += x86_64_gen_mov_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "AND")  ) p_code_gen->p_offset += x86_64_gen_and_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "OR")   ) p_code_gen->p_offset += x86_64_gen_or_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "XOR")  ) p_code_gen->p_offset += x86_64_gen_xor_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "TEST") ) p_code_gen->p_offset += x86_64_gen_xor_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "ADD")  ) p_code_gen->p_offset += x86_64_gen_add_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+            else if ( 0 == strcmp(instruction, "SUB")  ) p_code_gen->p_offset += x86_64_gen_sub_r64_r64(p_code_gen, _op1._reg, _op2._reg);
+        } 
+
+        // reg, imm64
+        else if ( _op1._type == X86_64_REG_64 && _op2._type == X86_64_IMM64 )
+        {
+            if ( 0 == strcmp(instruction, "MOV") ) p_code_gen->p_offset += x86_64_gen_mov_reg_imm64(p_code_gen, _op1._reg, _op2._imm64);
+        }
+
+        else if ( _op1._type == X86_64_REG_128 && _op2._type == X86_64_REG_64 )
+        {
+            if ( 0 == strcmp(instruction, "VMOVDQA") ) p_code_gen->p_offset += x86_64_avx_gen_mov_reg128_reg64(p_code_gen, _op1._reg, _op2._reg);
+        }
+    }
+
+    // Three operand
+    if ( op1 && op2 && op3 )
+    {
+
+        // reg, reg, reg
+        if ( _op1._type == X86_64_REG_128 && _op2._type == X86_64_REG_128 && _op3._type == X86_64_REG_128 )
+        {
+                 if ( 0 == strcmp(instruction, "VPADDD") ) p_code_gen->p_offset += x86_64_avx_gen_add_i32x4_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+            else if ( 0 == strcmp(instruction, "VPADDQ") ) p_code_gen->p_offset += x86_64_avx_gen_add_i64x2_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+
+            else if ( 0 == strcmp(instruction, "VADDPS") ) p_code_gen->p_offset += x86_64_avx_gen_add_f32x4_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+            else if ( 0 == strcmp(instruction, "VSUBPS") ) p_code_gen->p_offset += x86_64_avx_gen_sub_f32x4_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+            else if ( 0 == strcmp(instruction, "VMULPS") ) p_code_gen->p_offset += x86_64_avx_gen_mul_f32x4_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+            else if ( 0 == strcmp(instruction, "VDIVPS") ) p_code_gen->p_offset += x86_64_avx_gen_div_f32x4_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+
+            else if ( 0 == strcmp(instruction, "VADDPD") ) p_code_gen->p_offset += x86_64_avx_gen_add_f64x2_reg128_reg128_reg128(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+        } 
+
+        // reg, reg, reg
+        if ( _op1._type == X86_64_REG_256 && _op2._type == X86_64_REG_256 && _op3._type == X86_64_REG_256 )
+        {
+                 if ( 0 == strcmp(instruction, "VADDPS") ) p_code_gen->p_offset += x86_64_avx_gen_add_f32x8_reg256_reg256_reg256(p_code_gen, _op1._reg, _op2._reg, _op3._reg);
+        } 
+
+    }
+
+    // Success
+    return 1;
 }

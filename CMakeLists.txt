@@ -120,9 +120,16 @@ add_dependencies(code_gen_example code_gen pack dict hash_cache sync log)
 target_include_directories(code_gen_example PUBLIC ${CODE_GEN_INCLUDE_DIR} ${PACK_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
 target_link_libraries(code_gen_example code_gen pack dict hash_cache sync log pthread)
 
+
+add_executable(x86_64_asm "x86_64_asm.c")
+add_dependencies(x86_64_asm code_gen pack dict hash_cache sync log)
+target_include_directories(x86_64_asm PUBLIC ${CODE_GEN_INCLUDE_DIR} ${PACK_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
+target_link_libraries(x86_64_asm code_gen pack dict hash_cache sync log pthread)
+
 # Mac already includes rt, so its not needed on Mac
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	target_link_libraries(code_gen_example rt)
+target_link_libraries(code_gen_example rt)
+target_link_libraries(x86_64_asm rt)
 endif()
 
 # Add source to the library

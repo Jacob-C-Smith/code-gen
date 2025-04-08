@@ -1,7 +1,7 @@
 /** !
- * g assembler (x86)
+ * g assembler (x86_64)
  *
- * @file gasm.c
+ * @file x86_64_asm.c
  * 
  * @author Jacob Smith
  */
@@ -9,115 +9,204 @@
 // Standard library
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
 
 // code gen module
+#include <code_gen/code_gen.h>
+#include <code_gen/x86_64.h>
 
+// Preprocessor macros
+#define NASM_DISASSEMBLY
+
+// Data
+x86_64_code_gen *p_x86_64_code_gen = (void *) 0;
 
 /** !
  * Evaluate an assembly instruction
  * 
- * @param p_input  TODO
- * @param p_output TODO  
+ * @param p_input A line of assembly
  * 
  * @return 1 on success, 0 on error
  */
-int gasm_eval ( const char *p_input, char *p_output )
-{
-
-    // Initialized data
-    char *p_token = strtok(p_input, " ");
-    char  _token[1024] = { 0 };
-
-    // Tokenize the string
-    while ( p_token != NULL )
-    {
-
-        memcpy(_token, p_token, 1024);
-
-        // Initialized data
-        size_t len = strlen(p_token) - 1;
-
-        _token[len] = '\0';
-
-        if (_token[len - 1] == ':') {
-            _token[len - 1] = '\0',
-            sprintf(p_output, "Label: \"%s\"\n", _token);
-            goto done;
-        }
-
-        switch (_token[0])
-        {
-        case '!':
-            sprintf(p_output, "Directive\n");
-            goto done;
-        
-        default:
-
-            // Walk the string        
-            for (size_t i = 0; i < len; i++)
-
-                // Transform the string to upper case
-                _token[i] = toupper(p_token[i]);
-            
-            goto done;
-        }
-        done:
-        
-
-        // Tokenize
-        p_token = strtok(NULL, " ,");
-    }
-    
-    // Success
-    return 1;
-}
+int x86_64_asm_eval ( const char *p_input );
 
 // Entry point
 int main ( int argc, const char *argv[] )
 {
 
-    // Initialized data
-    char _in_buf[1024] = { 0 };
-    char _out_buf[1024] = { 0 };
+    // Unused 
+    (void) argc;
+    (void) argv;
 
+    // Construct an x86_64 code generator
+    x86_64_code_gen_construct(&p_x86_64_code_gen, 0, 8192);
 
+    // Formatting
+    printf("                 <<<  STDIN  >>>                 \n");
+    
     // REPL
     while ( !feof(stdin) )
     {
 
+        // Initialized data
+        char _in_buf[1024] = { 0 };
+
         // Wipe the tokens
-        memset(_in_buf, 0, 1024),
-        memset(_out_buf, 0, 1024);
+        memset(_in_buf, 0, 1024);
 
         // Read a line from standard in
-        fgets(_in_buf,1024,stdin);
+        if ( NULL == fgets(_in_buf, 1024, stdin) ) break;
 
         // Evaluate
-        gasm_eval(_in_buf, 0);
+        x86_64_asm_eval(_in_buf);
 
-        // Write a line to standard out
-        fprintf(stdout, _out_buf);
-        
     }
     
+    // Formatting
+    printf("                 <<<   EOF   >>>                 \n");
+    
+    // Disassemble
+    #ifdef NASM_DISASSEMBLY
+    {
+
+        // Initialized data
+        int _pipe[2] = { 0 };
+        int ndisasm_pid = -1;
+        char *const ndisasm_argv[] = { "ndisasm", "-b", "64", "-", NULL };
+
+        // Construct a pipe
+        if ( -1 == pipe(_pipe) )
+            goto failed_to_open_pipe;
+
+        // Write the machine code to the pipe
+        if ( (ssize_t) -1 == write(_pipe[1], p_x86_64_code_gen->p_base, ((size_t)p_x86_64_code_gen->p_offset-(size_t)p_x86_64_code_gen->p_base)) )
+            goto failed_to_write;
+
+        // Done with write end
+        close(_pipe[1]);
+
+        // Fork ndisasm
+        ndisasm_pid = fork();
+
+        // Error check
+        if ( ndisasm_pid == -1 )
+            goto failed_to_disassemble;
+
+        // ndisasm
+        if ( ndisasm_pid == 0 ) 
+        {
+
+            // Replace stdin with read end of pipe
+            dup2(_pipe[0], STDIN_FILENO);
+            
+            // Close unused fd
+            close(_pipe[0]);
+            
+            // Formatting
+            printf(
+                "                 <<< ndisasm >>>                 \n"\
+                "-------------------------------------------------\n"
+            );
+
+            // Execute ndisasm
+            execvp(ndisasm_argv[0], ndisasm_argv);
+
+            // Abort
+            exit(EXIT_FAILURE);
+        }
+        
+        // Done with read end, done with pipe
+        close(_pipe[0]);
+
+        // Wait on ndisasm
+        waitpid(ndisasm_pid, NULL, 0);
+        
+        // Formatting
+        printf("-------------------------------------------------\n");
+    }
+    #endif
+
+    // Invocation
+    {
+
+        // Initialized data
+        int    r  = 0;
+        void  *p1 = "Hello, World!";
+        void  *p2 = strlen(p1);
+        void  *p3 = NULL;
+        void  *p4 = NULL;
+        int  (*fun)
+        (
+            void *i,
+            void *j,
+            void *k,
+            void *l
+        ) = (void *) 0;
+
+        // Store the base
+        fun = p_x86_64_code_gen->p_base;
+        
+        // Print the result
+        printf("fun(\"%s\",%d)\n", p1, p2);
+
+        // Call the function
+        r = fun(p1, p2, p3, p4);
+
+        // Formatting
+        putchar('\n');
+    }
 
     // Success
     return EXIT_SUCCESS;
 
     // Error handling
     {
-        //
+        failed_to_open_pipe:
+        failed_to_write:
+        failed_to_disassemble:
+            return 0;
     }
 }
 
-void gasm_init ( void )
+int x86_64_asm_eval ( const char *p_input )
 {
 
-    // TODO
-    //
+    // Initialized data
+    char  _token[1024]  = { 0 };
+    char *p_token       = _token,
+         *p_instruction = (void *) 0,
+         *p_op1         = (void *) 0,
+         *p_op2         = (void *) 0,
+         *p_op3         = (void *) 0;
 
-    // Done
-    return;
+    // Copy the token
+    memcpy(_token, p_input, 1024);
+
+    // Transform the string to upper case
+    for (size_t i = 0; i < strlen(_token) - 1; i++)
+        _token[i] = (char) toupper(p_token[i]);
+    
+    // Tokenize
+    p_instruction = strtok(p_token, " ,\n"), p_instruction = p_token;
+
+    // Tokenize
+    p_op1 = strtok(NULL, " ,\n");
+
+    // Tokenize
+    p_op2 = strtok(NULL, " ,\n");
+
+    // Tokenize
+    p_op3 = strtok(NULL, " ,\n");
+
+    // Assemble
+    x86_64_code_gen_node_construct(p_x86_64_code_gen,
+        p_instruction,
+        p_op1,
+        p_op2,
+        p_op3);
+
+    // Success
+    return 1;
 }
